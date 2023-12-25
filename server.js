@@ -22,15 +22,15 @@ if (process.env.NODE_ENV === "local") {
   );
 }
 
-// if (process.env.NODE_ENV === "production") {
-//   app.use(express.static(path.join(__dirname, "./client/dist")));
-//   app.get("*", (req, res) => {
-//     res.sendFile(path.resolve(__dirname, "./", "client", "dist", "index.html"));
-//   });
-// }
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "./client/dist")));
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "./", "client", "dist", "index.html"));
+  });
+}
 app.get("/abc", (req, res) => {
-  res.send("abc def def def def def def def def")
-})
+  res.send("abc def def ");
+});
 
 //PORT environment
 const PORT = process.env.PORT || 5000;
