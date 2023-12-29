@@ -5,6 +5,8 @@ import Layout from "./pages/Layout";
 import Home from "./components/Home";
 import Templetes from "./components/Templetes";
 import Projects from "./components/Projects";
+import CreateDesign from "./components/CreateDesign";
+import Main from "./pages/Main";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -23,6 +25,14 @@ const router = createBrowserRouter([
         element: <Templetes />,
       },
     ],
+  },
+  {
+    path: "/design/create",
+    element: <CreateDesign />,
+  },
+  {
+    path: "/design",
+    element: <Main />,
   },
 ]);
 
