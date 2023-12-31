@@ -22,6 +22,14 @@ const Main = () => {
   const [width, setWidth] = useState("");
   const [height, setHeight] = useState("");
   const [state, setState] = useState("");
+  const [opacity, setOpacity] = useState("");
+  const [zIndex, setzIndex] = useState("");
+
+  const [padding, setPadding] = useState("");
+  const [font, setFont] = useState("");
+  const [weight, setWeight] = useState("");
+  const [text, setText] = useState("");
+  const [radius, setRadius] = useState(0);
   const [show, setShow] = useState({
     status: true,
     name: "",
@@ -102,7 +110,39 @@ const Main = () => {
     window.addEventListener("mouseup", mouseUp);
   };
 
-  const rotateElement = (id, currentInfo) => {};
+  const rotateElement = (id, currentInfo) => {
+    setCurrentComponent("");
+    setCurrentComponent(currentInfo);
+    const target = document.getElementById(id);
+
+    const mouseMove = ({ movementX, movementY }) => {
+      const getStyle = window.getComputedStyle(target);
+      const trans = getStyle.transform;
+      const values = trans.split("(")[1].split(")")[0].split(",");
+
+      const angle = Math.round(Math.atan2(values[1], values[0]) * (180 / Math.PI));
+      let deg = angle < 0 ? angle + 360 : angle;
+
+      if (movementX) {
+        deg = deg + movementX;
+      }
+      target.style.transform = `rotate(${deg}deg)`;
+    };
+    const mouseUp = (e) => {
+      window.removeEventListener("mousemove", mouseMove);
+      window.removeEventListener("mouseup", mouseUp);
+
+      const getStyle = window.getComputedStyle(target);
+      const trans = getStyle.transform;
+      const values = trans.split("(")[1].split(")")[0].split(",");
+      const angle = Math.round(Math.atan2(values[1], values[0]) * (180 / Math.PI));
+      let deg = angle < 0 ? angle + 360 : angle;
+      setRotate(deg);
+    };
+
+    window.addEventListener("mousemove", mouseMove);
+    window.addEventListener("mouseup", mouseUp);
+  };
 
   const removeComponent = (id) => {
     const temp = components.filter((c) => c.id !== id);
@@ -139,12 +179,105 @@ const Main = () => {
     setComponents([...components, style]);
   };
 
+  const add_text = (name, type) => {
+    const style = {
+      id: Date.now(),
+      name: name,
+      type,
+      left: 10,
+      top: 10,
+      opacity: 1,
+      rotate,
+      z_index: 10,
+      padding: 6,
+      font: 22,
+      title: "Add text",
+      weight: 400,
+      color: "#3c3c3d",
+      setCurrentComponent: (a) => setCurrentComponent(a),
+      moveElement,
+      resizeElement,
+      rotateElement,
+    };
+
+    setWeight("");
+    setFont("");
+    setCurrentComponent(style);
+    setComponents([...components, style]);
+  };
+  const add_image = (img) => {
+    setCurrentComponent("");
+    const style = {
+      id: Date.now(),
+      name: "image",
+      type: "image",
+      left: 10,
+      top: 10,
+      opacity: 1,
+      width: 200,
+      height: 150,
+      rotate,
+      z_index: 2,
+      radius: 0,
+      image: img,
+      setCurrentComponent: (a) => setCurrentComponent(a),
+      moveElement,
+      resizeElement,
+      rotateElement,
+    };
+
+    setCurrentComponent(style);
+    setComponents([...components, style]);
+  };
+
+  const opacityHandle = (e) => {
+    setOpacity(parseFloat(e.target.value));
+  };
+
   useEffect(() => {
     if (current_component) {
       const index = components.findIndex((c) => c.id === current_component.id);
+      const temp = components.filter((c) => c.id !== current_component.id);
+
+      if (current_component.name !== "text") {
+        components[index].width = width || current_component.width;
+        components[index].height = height || current_component.height;
+        components[index].rotate = rotate || current_component.rotate;
+      }
+      if (current_component.name === "text") {
+        components[index].font = font || current_component.font;
+        components[index].padding = padding || current_component.padding;
+        components[index].weight = weight || current_component.weight;
+        components[index].title = text || current_component.title;
+      }
+      if (current_component.name === "image") {
+        components[index].radius = radius || current_component.radius;
+      }
+
+      if (current_component.name === "main_frame" && image) {
+        components[index].image = image || current_component.image;
+      }
       components[index].color = color || current_component.color;
+
+      if (current_component.name !== "main_frame") {
+        components[index].left = left || current_component.left;
+        components[index].top = top || current_component.top;
+        components[index].opacity = opacity || current_component.opacity;
+        components[index].z_index = zIndex || current_component.z_index;
+      }
+      setComponents([...temp, components[index]]);
+
+      setColor("");
+      setWidth("");
+      setHeight("");
+      setTop("");
+      setLeft("");
+      setRotate(0);
+      setOpacity("");
+      setzIndex("");
+      setText("");
     }
-  }, [color]);
+  }, [color, image, left, top, width, height, opacity, zIndex, padding, font, weight, text, radius, rotate]);
 
   return (
     <div className="min-w-screen h-screen bg-black">
@@ -265,11 +398,14 @@ const Main = () => {
                 ></div>
               </div>
             )}
-            {state === "image" && <MyImages />}
+            {state === "image" && <MyImages add_image={add_image} />}
             {state === "text" && (
               <div>
                 <div className="grid grid-cols-1 gap-2">
-                  <div className="bg-[#3c3c3d] cursor-pointer font-bold p-3 text-white text-xl rounded-sm">
+                  <div
+                    onClick={() => add_text("text", "title")}
+                    className="bg-[#3c3c3d] cursor-pointer font-bold p-3 text-white text-xl rounded-sm"
+                  >
                     <h2>Add a Text</h2>
                   </div>
                 </div>
@@ -346,7 +482,7 @@ const Main = () => {
                       <div className="flex gap-1 justify-start items-start">
                         <span className="text-md w-[70px]">Opacity : </span>
                         <input
-                          // onChange={opacityHandle}
+                          onChange={opacityHandle}
                           className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                           type="number"
                           step={0.1}
@@ -358,7 +494,7 @@ const Main = () => {
                       <div className="flex gap-1 justify-start items-start">
                         <span className="text-md w-[70px]">Z-Index : </span>
                         <input
-                          // onChange={(e) => setzIndex(parseInt(e.target.value))}
+                          onChange={(e) => setzIndex(parseInt(e.target.value))}
                           className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                           type="number"
                           step={1}
@@ -382,7 +518,7 @@ const Main = () => {
                           <div className="flex gap-1 justify-start items-start">
                             <span className="text-md w-[70px]">Padding : </span>
                             <input
-                              // onChange={(e) => setPadding(parseInt(e.target.value))}
+                              onChange={(e) => setPadding(parseInt(e.target.value))}
                               className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                               type="number"
                               step={1}
@@ -392,7 +528,7 @@ const Main = () => {
                           <div className="flex gap-1 justify-start items-start">
                             <span className="text-md w-[72px]">Font size : </span>
                             <input
-                              // onChange={(e) => setFont(parseInt(e.target.value))}
+                              onChange={(e) => setFont(parseInt(e.target.value))}
                               className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                               type="number"
                               step={1}
@@ -402,7 +538,7 @@ const Main = () => {
                           <div className="flex gap-1 justify-start items-start">
                             <span className="text-md w-[70px]">Weight : </span>
                             <input
-                              // onChange={(e) => setWeight(parseInt(e.target.value))}
+                              onChange={(e) => setWeight(parseInt(e.target.value))}
                               className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                               type="number"
                               step={100}
@@ -425,7 +561,7 @@ const Main = () => {
                               value={current_component.title}
                             />
                             <button
-                              // onClick={() => setText(current_component.title)}
+                              onClick={() => setText(current_component.title)}
                               className="px-4 py-2 bg-purple-500 text-xs text-white rounded-sm"
                             >
                               Add
