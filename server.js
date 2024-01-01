@@ -8,20 +8,13 @@ const path = require("path");
 dotenv.config();
 app.use(express.json());
 
-if (process.env.NODE_ENV === "local") {
   app.use(
     cors({
-      origin: "http://localhost:5173",
+      origin: ["http://localhost:5173", "https://conva.vercel.app"],
       credentials: true,
     })
   );
-} else {
-  app.use(
-    cors({
-      credentials: true,
-    })
-  );
-}
+
 
 app.use("/api", require("./routes/designRoutes"));
 app.use("/api", require("./routes/authRoutes"));
