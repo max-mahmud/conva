@@ -1,11 +1,15 @@
 import React from "react";
 
-const Image = () => {
+const Image = ({ add_image, images, type, setImage }) => {
   return (
     <div className="grid grid-cols-2 gap-2">
-      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map((item, i) => (
-        <div key={i} className="w-full h-[90px] overflow-hidden rounded-sm cursor-pointer">
-          <img className="w-full h-full object-fill" src={"/homework.png"} alt="image" />
+      {images?.map((item, i) => (
+        <div
+          key={i}
+          onClick={() => (type === "background" ? setImage(item.image_url) : add_image(item.image_url))}
+          className="w-full h-[90px] overflow-hidden rounded-sm cursor-pointer"
+        >
+          <img className="w-full h-full object-fill" src={item.image_url} alt="image" />
         </div>
       ))}
     </div>

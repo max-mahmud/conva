@@ -3,6 +3,7 @@ import { IoMdClose } from "react-icons/io";
 import { AiOutlineGoogle } from "react-icons/ai";
 import { FaFacebookF } from "react-icons/fa";
 import api from "./../utils/api";
+import { toast } from "react-hot-toast";
 
 const Index = () => {
   const [type, setType] = useState("");
@@ -36,7 +37,7 @@ const Index = () => {
       window.location.href = "/";
     } catch (error) {
       setLoader(false);
-      console.log(error);
+      toast.error(error.response.data.message);
     }
   };
 
@@ -54,9 +55,8 @@ const Index = () => {
       });
       window.location.href = "/";
     } catch (error) {
-      console.log(error.response.data.message);
       setLoader(false);
-      // toast.error(error.response.data.message);
+      toast.error(error.response.data.message);
     }
   };
 

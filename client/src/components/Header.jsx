@@ -1,13 +1,52 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import * as htmlToImage from "html-to-image";
+import api from "../utils/api";
+import { toast } from "react-hot-toast";
 
 const Header = ({ components, design_id }) => {
   const navigate = useNavigate();
   const [loader, setLoader] = useState(false);
 
-  const saveImage = async () => {};
+  const saveImage = async () => {
+    const getDiv = document.getElementById("main_design");
+    const image = await htmlToImage.toBlob(getDiv);
 
-  const downloadImage = async () => {};
+    if (image) {
+      const obj = {
+        design: components,
+      };
+      console.log(obj);
+      const formData = new FormData();
+      formData.append("design", JSON.stringify(obj));
+      formData.append("image", image);
+
+      try {
+        setLoader(true);
+        const { data } = await api.put(`/api/update-user-design/${design_id}`, formData);
+        toast.success(data.message);
+        setLoader(false);
+      } catch (error) {
+        setLoader(false);
+        toast.error(error.response.data.message);
+      }
+    }
+  };
+
+  const downloadImage = async () => {
+    const getDiv = document.getElementById("main_design");
+    const dataUrl = await htmlToImage.toPng(getDiv, {
+      style: {
+        transform: "scale(1)",
+      },
+    });
+    var link = document.createElement("a");
+    link.download = "image";
+    link.href = dataUrl;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="h-[60px] bg-gradient-to-r from-[#212122] via-[#27282b] to-[#2a2b2c] w-full">

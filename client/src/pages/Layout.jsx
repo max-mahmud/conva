@@ -1,11 +1,31 @@
 import React, { useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { FaHome } from "react-icons/fa";
 import { BsFolder, BsGrid1X2 } from "react-icons/bs";
+import { token_decode } from "../utils/index";
+import userImage from "/admin.jpg";
 
 const Layout = () => {
+  const userInfo = token_decode(localStorage.getItem("canva_token"));
+
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const [show, setShow] = useState(false);
+
+  const create = () => {
+    navigate("/design/create", {
+      state: {
+        type: "create",
+        width: 600,
+        height: 450,
+      },
+    });
+  };
+
+  const logout = () => {
+    localStorage.removeItem("canva_token");
+    window.location.href = "/";
+  };
 
   return (
     <div className="bg-[#18191b] min-h-screen w-full">
@@ -20,11 +40,18 @@ const Layout = () => {
               />
             </div>
             <div className="flex gap-4 justify-center items-center relative">
-              <button className="py-2 px-6 overflow-hidden text-center bg-[#8b3dff] text-white rounded-[3px] font-medium hover:bg-[#9553f8]">
+              <button
+                onClick={create}
+                className="py-2 px-6 overflow-hidden text-center bg-[#8b3dff] text-white rounded-[3px] font-medium hover:bg-[#9553f8]"
+              >
                 Create a Design
               </button>
               <div onClick={() => setShow(!show)} className="cursor-pointer">
-                <img src="/userprofile.png" className="w-[45px] h-[45px] rounded-full" alt="prfile" />
+                <img
+                  src={userInfo?.image ? userImage?.image : userImage}
+                  className="w-[45px] h-[45px] rounded-full"
+                  alt="prfile"
+                />
               </div>
               <div
                 className={`absolute top-[60px] right-0 w-[250px] bg-[#313030] p-3 border border-gray-700 transition duration-500 ${
@@ -32,10 +59,14 @@ const Layout = () => {
                 }`}
               >
                 <div className="px-2 py-2 flex justify-start gap-5 items-center">
-                  <img src="/userprofile.png" className="w-[40px] h-[40px] rounded-full" alt="prfile" />
+                  <img
+                    src={userInfo?.image ? userImage?.image : userImage}
+                    className="w-[40px] h-[40px] rounded-full"
+                    alt="prfile"
+                  />
                   <div className="flex justify-center flex-col items-start">
-                    <span className="text-[#e0dddd] font-bold text-md">Sheikh farid</span>
-                    <span className="text-[#c4c0c0] font-bold text-md">farid@gmail.com</span>
+                    <span className="text-[#e0dddd] font-bold text-md">{userInfo?.name}</span>
+                    <span className="text-[#c4c0c0] font-bold text-md">{userInfo?.email}</span>
                   </div>
                 </div>
                 <ul className="text-[#e0dddd] font-semibold">
@@ -45,9 +76,9 @@ const Layout = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link className="p-2 cursor-pointer">
+                    <div onClick={logout} className="p-2 cursor-pointer">
                       <span>Logout</span>
-                    </Link>
+                    </div>
                   </li>
                 </ul>
               </div>
@@ -58,9 +89,13 @@ const Layout = () => {
       <div className="w-full flex mt-16">
         <div className="sidebar w-[300px] p-5 h-[calc(100vh-70px)] fixed">
           <div className="px-2 py-2 flex justify-start gap-5 items-center mb-3">
-            <img className="w-[40px] h-[40px] rounded-full" src="/userprofile.png" alt="image" />
+            <img
+              className="w-[40px] h-[40px] rounded-full"
+              src={userInfo?.image ? userImage?.image : userImage}
+              alt="image"
+            />
             <div className="flex justify-center flex-col items-start">
-              <span className="text-[#e0dddd] font-bold text-md">Sheikh farid</span>
+              <span className="text-[#e0dddd] font-bold text-md">{userInfo?.name}</span>
               <span className="text-[#c4c0c0] text-sm">Free</span>
             </div>
           </div>

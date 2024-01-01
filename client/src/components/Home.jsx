@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import { Link, useNavigate } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
+import api from "./../utils/api";
+import { toast } from "react-hot-toast";
+import Item from "./home/Item";
 
 const Home = () => {
   const [designs, setDesign] = useState([]);
@@ -50,6 +53,29 @@ const Home = () => {
         height: state.height,
       },
     });
+  };
+
+  const get_user_design = async () => {
+    try {
+      const { data } = await api.get("/api/user-designs");
+      setDesign(data.designs);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    get_user_design();
+  }, []);
+
+  const delete_design = async (design_id) => {
+    try {
+      const { data } = await api.put(`/api/delete-user-image/${design_id}`);
+      toast.success(data.message);
+      get_user_design();
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
   };
 
   return (
@@ -103,15 +129,8 @@ const Home = () => {
         <h2 className="text-xl py-6 font-semibold text-white">Your recent designs</h2>
         <div>
           <Carousel autoPlay={true} infinite={true} responsive={responsive} transitionDuration={500}>
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((d, i) => (
-              <div className="relative group w-full h-[150px] px-2" key={i}>
-                <Link className="w-full h-full block bg-[#ffffff12] p-4 rounded-md">
-                  <img className="w-full h-full rounded-md overflow-hidden" src="/homework.png" alt="" />
-                </Link>
-                <div className="absolute hidden cursor-pointer top-1 right-2 text-red-500 p-2 transition-all duration-500 group-hover:block">
-                  <FaTrash />
-                </div>
-              </div>
+            {designs.map((d, i) => (
+              <Item delete_design={delete_design} design={d} key={i} />
             ))}
           </Carousel>
         </div>

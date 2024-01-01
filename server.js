@@ -23,6 +23,7 @@ if (process.env.NODE_ENV === "local") {
   );
 }
 
+app.use("/api", require("./routes/designRoutes"));
 app.use("/api", require("./routes/authRoutes"));
 
 if (process.env.NODE_ENV === "production") {

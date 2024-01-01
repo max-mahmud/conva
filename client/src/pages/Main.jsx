@@ -11,8 +11,11 @@ import Projects from "../components/Projects";
 import InitialImage from "../components/InitialImage";
 import BackgroundImages from "../components/BackgroundImages";
 import CreateComponent from "../components/CreateComponent";
+import { useParams } from "react-router-dom";
+import api from "./../utils/api";
 
 const Main = () => {
+  const { design_id } = useParams();
   const [current_component, setCurrentComponent] = useState("");
   const [image, setImage] = useState("");
   const [color, setColor] = useState("");
@@ -279,9 +282,31 @@ const Main = () => {
     }
   }, [color, image, left, top, width, height, opacity, zIndex, padding, font, weight, text, radius, rotate]);
 
+  useEffect(() => {
+    const get_design = async () => {
+      try {
+        const { data } = await api.get(`/api/user-design/${design_id}`);
+        // console.log(data);
+        const { design } = data;
+
+        for (let i = 0; i < design.length; i++) {
+          design[i].setCurrentComponent = (a) => setCurrentComponent(a);
+          design[i].moveElement = moveElement;
+          design[i].resizeElement = resizeElement;
+          design[i].rotateElement = rotateElement;
+          design[i].remove_background = remove_background;
+        }
+        setComponents(design);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    get_design();
+  }, [design_id]);
+
   return (
     <div className="min-w-screen h-screen bg-black">
-      <Header />
+      <Header components={components} design_id={design_id} />
       <div className="flex h-[calc(100%-60px)] w-screen">
         {" "}
         <div className="w-[80px] bg-[#18191B] z-50 h-full text-gray-400 overflow-y-auto scrollbar-hide">
@@ -412,7 +437,7 @@ const Main = () => {
               </div>
             )}
 
-            {state === "project" && <Projects />}
+            {state === "project" && <Projects type="main" design_id={design_id} />}
             {state === "initImage" && (
               <div className="h-[88vh] overflow-x-auto flex justify-start items-start scrollbar-hide">
                 <InitialImage />
@@ -420,7 +445,7 @@ const Main = () => {
             )}
             {state === "background" && (
               <div className="h-[88vh] overflow-x-auto flex justify-start items-start scrollbar-hide">
-                <BackgroundImages />
+                <BackgroundImages type="background" setImage={setImage} />
               </div>
             )}
           </div>
@@ -505,7 +530,7 @@ const Main = () => {
                         <div className="flex gap-1 justify-start items-start">
                           <span className="text-md w-[70px]">Radius : </span>
                           <input
-                            // onChange={(e) => setRadius(parseInt(e.target.value))}
+                            onChange={(e) => setRadius(parseInt(e.target.value))}
                             className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                             type="number"
                             step={1}
